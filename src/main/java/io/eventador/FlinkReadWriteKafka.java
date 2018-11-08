@@ -28,7 +28,7 @@ public class FlinkReadWriteKafka {
         DataStream<ObjectNode> messageStream = env
                 .addSource(new FlinkKafkaConsumer011<>(
                         params.getRequired("read-topic"),
-                        new JSONKeyValueDeserializationSchema(false),
+                        new JSONKeyValueDeserializationSchema(true),
                         params.getProperties()));
 
         messageStream.print();

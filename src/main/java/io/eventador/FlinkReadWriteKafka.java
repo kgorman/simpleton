@@ -6,6 +6,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.streaming.util.serialization.JSONKeyValueDeserializationSchema;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class FlinkReadWriteKafka {
     public static void main(String[] args) throws Exception {
@@ -22,10 +23,10 @@ public class FlinkReadWriteKafka {
         env.enableCheckpointing(300000); // 300 seconds
         env.getConfig().setGlobalJobParameters(params);
 
-        DataStream<String> messageStream = env
+        DataStream<ObjectNode> messageStream = env
                 .addSource(new FlinkKafkaConsumer011<>(
                         params.getRequired("read-topic"),
-                        new JSONKeyValuesDeserializationSchema(false),
+                        new JSONKeyValueDeserializationSchema(false),
                         params.getProperties()));
 
         // If you want to perform some transformations before writing the data

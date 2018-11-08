@@ -5,7 +5,9 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
 import org.apache.flink.streaming.util.serialization.JSONKeyValueDeserializationSchema;
+import org.apache.flink.streaming.util.serialization.SerializationSchema;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class FlinkReadWriteKafka {
@@ -29,9 +31,17 @@ public class FlinkReadWriteKafka {
                         new JSONKeyValueDeserializationSchema(false),
                         params.getProperties()));
 
-        // If you want to perform some transformations before writing the data
-        // back to Kafka, do it here!
-        messageStream.print();
+        messageStream.addSink(new FlinkKafkaProducer011<>(
+                params.getRequired("write-topic"),
+                new SerializationSchema<ObjectNode>() {
+                    @Override
+                    public byte[] serialize( ObjectNode element ) {
+                        return element.toString().getBytes();
+                    }
+                },
+                params.getProperties())).name("Write To Kafka");
+
+
 
         env.execute("FlinkReadWriteKafka");
     }

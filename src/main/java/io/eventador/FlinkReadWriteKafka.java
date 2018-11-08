@@ -31,6 +31,8 @@ public class FlinkReadWriteKafka {
                         new JSONKeyValueDeserializationSchema(false),
                         params.getProperties()));
 
+        messageStream.print();
+
         messageStream.addSink(new FlinkKafkaProducer011<>(
                 params.getRequired("write-topic"),
                 new SerializationSchema<ObjectNode>() {
@@ -40,8 +42,6 @@ public class FlinkReadWriteKafka {
                     }
                 },
                 params.getProperties())).name("Write To Kafka");
-
-
 
         env.execute("FlinkReadWriteKafka");
     }

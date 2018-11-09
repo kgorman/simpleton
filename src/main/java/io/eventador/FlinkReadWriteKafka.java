@@ -9,7 +9,7 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.StreamTableEnvironment;
 
-public class FlinkReadWriteKafka {
+public class FlinkKafkaTable {
     public static void main(String[] args) throws Exception {
         // Read parameters from command line
         final ParameterTool params = ParameterTool.fromArgs(args);
@@ -67,6 +67,6 @@ public class FlinkReadWriteKafka {
         String ds = result2.toString();
         System.out.println(ds);
 
-        env.execute("FlinkReadWriteKafka");
+        env.execute("FlinkKafkaTable");
     }
 }

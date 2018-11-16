@@ -64,22 +64,22 @@ public class FlinkKafkaTable {
                 .sinkPartitionerRoundRobin())
                 .withSchema(new Schema()
                         .field("sensor", Types.STRING())
+                        .field("tumbleStart", Types.SQL_TIMESTAMP())
+                        .field("tumbleEnd", Types.SQL_TIMESTAMP())
                         .field("avgTemp", Types.LONG())
-                        .field("hopStart", Types.SQL_TIMESTAMP())
-                        .field("hopEnd", Types.SQL_TIMESTAMP())
                 )
                 .withFormat(new Json().deriveSchema())
                 .inAppendMode()
                 .registerTableSink("sinkTopic");
 
         String sql = "INSERT INTO sinkTopic "
-                + "SELECT sensor "
-                + "HOP_START(ts, INTERVAL '5' SECOND, INTERVAL '1' HOUR) as hopStart, "
-                + "HOP_END(ts, INTERVAL '5' SECOND, INTERVAL '1' HOUR) as hopEnd, "
-                + "AVG(temp) AS avgTemp, "
+                + "SELECT sensor, "
+                + "TUMBLE_START(ts, INTERVAL '1' MINUTE) as tumbleStart, "
+                + "TUMBLE_END(ts, INTERVAL '1' MINUTE) as tumbleEnd, "
+                + "AVG(temp) AS avgTemp "
                 + "FROM sourceTopic "
                 + "WHERE sensor IS NOT null "
-                + "GROUP BY HOP(ts, INTERVAL '5' SECOND, INTERVAL '1' HOUR), sensor";
+                + "GROUP BY TUMBLE(ts, INTERVAL '1' MINUTE), sensor";
 
         tableEnv.sqlUpdate(sql);
 
